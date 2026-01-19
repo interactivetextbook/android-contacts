@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.yandex.practicum.contacts.R
 import ru.yandex.practicum.contacts.data.models.CountryCode
+import ru.yandex.practicum.contacts.presentation.ui.components.CommonBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,79 +36,25 @@ fun CountryCodeBottomSheet(
     onCodesSelected: (Set<CountryCode>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.filter_by_country_code),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
-                    )
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            ) {
-                items(CountryCode.COMMON_CODES) { countryCode ->
-                    val isSelected = selectedCodes.contains(countryCode)
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        onClick = {
-                            val newSelection = selectedCodes.toMutableSet()
-                            if (isSelected) {
-                                newSelection.remove(countryCode)
-                            } else {
-                                newSelection.add(countryCode)
-                            }
-                            onCodesSelected(newSelection)
-                        },
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        }
-                    ) {
-                        CountryCodeOption(
-                            isSelected = isSelected,
-                            countryCode = countryCode,
-                            selectedCodes = selectedCodes,
-                            onCodesSelected = onCodesSelected
-                        )
-                    }
-                }
-            }
+    CommonBottomSheet(
+        title = stringResource(R.string.filter_by_country_code),
+        items = CountryCode.COMMON_CODES,
+        selectedItems = selectedCodes,
+        onItemsSelected = { newSelection -> onCodesSelected(newSelection) },
+        onDismiss = onDismiss,
+        itemContent = { countryCode, isSelected ->
+            CountryCodeItem(
+                countryCode = countryCode,
+                isSelected = isSelected
+            )
         }
-    }
+    )
 }
 
 @Composable
-private fun CountryCodeOption(
-    isSelected: Boolean,
+private fun CountryCodeItem(
     countryCode: CountryCode,
-    selectedCodes: Set<CountryCode>,
-    onCodesSelected: (Set<CountryCode>) -> Unit
+    isSelected: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -117,21 +64,16 @@ private fun CountryCodeOption(
     ) {
         Checkbox(
             checked = isSelected,
-            onCheckedChange = { checked ->
-                val newSelection = selectedCodes.toMutableSet()
-                if (checked) {
-                    newSelection.add(countryCode)
-                } else {
-                    newSelection.remove(countryCode)
-                }
-                onCodesSelected(newSelection)
-            }
+            onCheckedChange = null // Управляется через клик по Surface в CommonBottomSheet
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(countryCode.code)
             Text(
-                countryCode.country,
+                text = countryCode.code,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = countryCode.country,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
