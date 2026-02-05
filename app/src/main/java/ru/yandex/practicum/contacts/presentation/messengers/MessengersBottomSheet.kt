@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.yandex.practicum.contacts.R
 import ru.yandex.practicum.contacts.data.models.MessagingApp
+import ru.yandex.practicum.contacts.presentation.ui.components.CommonBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,73 +36,21 @@ fun MessengersBottomSheet(
     onAppsSelected: (Set<MessagingApp>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.filter_by_messaging_app),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.close)
-                    )
-                }
-            }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            ) {
-                items(MessagingApp.entries) { app ->
-                    val isSelected = selectedApps.contains(app)
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        onClick = {
-                            val newSelection = selectedApps.toMutableSet()
-                            if (isSelected) {
-                                newSelection.remove(app)
-                            } else {
-                                newSelection.add(app)
-                            }
-                            onAppsSelected(newSelection)
-                        },
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        }
-                    ) {
-                        MessengerOption(
-                            isSelected = isSelected,
-                            app = app,
-                            selectedApps = selectedApps,
-                            onAppsSelected = onAppsSelected
-                        )
-                    }
-                }
-            }
-        }
+    CommonBottomSheet(
+        title = stringResource(R.string.filter_by_messaging_app),
+        items = MessagingApp.entries,
+        selectedItems = selectedApps,
+        onItemsSelected = { onAppsSelected(it) },
+        onDismiss = onDismiss
+    ) { app, isSelected ->
+        MessengerOption(
+            isSelected = isSelected,
+            app = app,
+            selectedApps = selectedApps,
+            onAppsSelected = onAppsSelected
+        )
     }
 }
-
 @Composable
 private fun MessengerOption(
     isSelected: Boolean,
