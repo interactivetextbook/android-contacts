@@ -1,8 +1,8 @@
 package ru.yandex.practicum.contacts.data.models
 
-data class CountryCode(
-    val code: String,
-    val country: String
+ data class CountryCode(
+     val code: String,
+     val country: String
 ) {
     companion object {
         val COMMON_CODES = listOf(
@@ -18,4 +18,6 @@ data class CountryCode(
             CountryCode("+55", "Brazil")
         )
     }
-} 
+}
+
+annotation class CountryCode
